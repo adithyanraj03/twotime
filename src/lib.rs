@@ -3,6 +3,7 @@
 
 pub mod chacha;
 pub mod crypto;
+pub mod poly;
 
 /// Crate version (appears in artifacts; no timestamps anywhere).
 pub const VERSION: &str = "1.0.0";
