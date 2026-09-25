@@ -4,6 +4,7 @@
 pub mod aead;
 pub mod chacha;
 pub mod crypto;
+pub mod kats;
 pub mod poly;
 
 /// Crate version (appears in artifacts; no timestamps anywhere).
