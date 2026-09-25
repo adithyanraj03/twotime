@@ -2,6 +2,7 @@
 //! the full RFC stack, the two-time pad failure, byte-exact.
 
 pub mod aead;
+pub mod attest;
 pub mod avalanche;
 pub mod battery;
 pub mod chacha;
