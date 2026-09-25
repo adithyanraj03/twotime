@@ -1,0 +1,145 @@
+
+================================================================================
+TWOTIME VERIFICATION REPORT================================================================================
+ChaCha20-Poly1305 AEAD (RFC 8439), Rust std-only.
+version    : twotime 1.0.0
+core       : ChaCha20 20 rounds (RFC 8439 2.1-2.4), Poly1305 mod 2^130-5
+               (2.5), AEAD_CHACHA20_POLY1305 (2.8); tag compare constant-time
+multiply   : u128 schoolbook, 160-bit operand split (131-bit acc+block bound)
+determinism: pure function of embedded RFC vectors (no clock, no env, no RNG)
+================================================================================
+
+================================================================================
+SECTION 1 - RFC 8439 KAT BATTERY (all published vectors)================================================================================
+[PASS] #1 2.1.1 quarter round                     words match
+[PASS] #2 2.2.1 quarter round on state (2,7,8,13) state matches
+[PASS] #3 2.3.2 block function (serialized 64 bytes) 64 bytes match
+[PASS] #4 2.4.2 sunscreen keystream (114 bytes)   114 bytes match
+[PASS] #5 2.4.2 sunscreen ciphertext (114 bytes)  114 bytes match
+[PASS] #6 2.5.2 accumulator after block #1        2c88c77849d64ae9147ddeb88e69c83fc
+[PASS] #7 2.5.2 accumulator after block #2        2d8adaf23b0337fa7cccfb4ea344b30de
+[PASS] #8 2.5.2 accumulator after block #3        28d31b7caff946c77c8844335369d03a7
+[PASS] #9 2.5.2 Poly1305 tag (34-byte message)    16 bytes match
+[PASS] #10 2.5.2 acc + s before serialization     0x2a927010caf8b2bc2c6365130c11d06a8
+[PASS] #11 2.6.2 Poly1305 key generation (OTK)    32 bytes match
+[PASS] #12 2.8.2 AEAD one-time key                32 bytes match
+[PASS] #13 2.8.2 clamped r / s split              r = 0x455e9a4057ab6080f47b42c052bac7b, s = 0xff53d53e7875932aebd9751073d6e10a
+[PASS] #14 2.8.2 AEAD ciphertext (114 bytes)      114 bytes match
+[PASS] #15 2.8.2 AEAD tag                         16 bytes match
+[PASS] #16 2.8.2 Poly1305 input buffer (160 bytes) 160 bytes match
+[PASS] #17 2.8.2 AEAD keystream (114 bytes)       114 bytes match
+[PASS] #18 A.1 #1 (zero key/nonce, block 0)       64 bytes match
+[PASS] #19 A.1 #2 (zero key/nonce, block 1)       64 bytes match
+[PASS] #20 A.1 #3 (key[31]=1, block 1)            64 bytes match
+[PASS] #21 A.1 #4 (key[1]=0xff, block 2)          64 bytes match
+[PASS] #22 A.1 #5 (nonce[11]=2, block 0)          64 bytes match
+[PASS] #23 A.2 #1 (32 zero bytes, block 0)        32 bytes match
+[PASS] #24 A.2 #2 (375-byte IETF text, key[31]=1, nonce[11]=2, block 1) 375 bytes match
+[PASS] #25 A.2 #3 (127-byte 'Twas brillig', counter 42) 127 bytes match
+[PASS] #26 A.3 #1 (zero key, 32 zero bytes)       16 bytes match
+[PASS] #27 A.3 #2 (r = 0: tag equals s regardless of message) 16 bytes match
+[PASS] #28 A.3 #3 (375-byte IETF text, r = 36e5f6…) 16 bytes match
+[PASS] #29 A.3 #4 (127-byte 'Twas brillig', key 1c92…) 16 bytes match
+[PASS] #30 A.3 #5 (130-bit partial-reduction edge) 16 bytes match
+[PASS] #31 A.3 #6 (acc + s overflows mod 2^128)   16 bytes match
+[PASS] #32 A.3 #7 (all-ones data limb + carry)    16 bytes match
+[PASS] #33 A.3 #8 (polynomial part exactly 2^130-5 -> tag 0) 16 bytes match
+[PASS] #34 A.3 #9 (polynomial part exactly 2^130-6) 16 bytes match
+[PASS] #35 A.3 #10 (131-bit 5H+L intermediate)    16 bytes match
+[PASS] #36 A.3 #11 (131-bit 5H+L final)           16 bytes match
+[PASS] #37 A.4 #1 (zero key/nonce)                32 bytes match
+[PASS] #38 A.4 #2 (key[31]=1, nonce[11]=2)        32 bytes match
+[PASS] #39 A.4 #3 (key 1c92…, nonce[11]=2)        32 bytes match
+[PASS] #40 A.5 one-time key                       32 bytes match
+[PASS] #41 A.5 Poly1305 input buffer (304 bytes)  304 bytes match
+[PASS] #42 A.5 tag validates                      tag accepted by constant-time compare
+[PASS] #43 A.5 recovered plaintext (265 bytes)    265 bytes match
+
+KAT total: 43 checks, 43 pass, 0 fail
+
+================================================================================
+SECTION 2 - TWO-TIME PAD ATTACK (byte-exact reproduction)================================================================================
+p1 (known)   : 114 bytes  "Ladies and Gentlemen of the class of '99: If I could offer y"
+p2 (target)  : 172 bytes  "The sun never sets on a one-time pad; the two-time pad is a "
+C1^C2 == P1^P2 over 114 bytes: byte-exact (keystream cancels)
+full recovery P2 = P1^C1^C2: byte-exact match (114 bytes)
+crib (16-byte prefix of P1) -> P2 prefix: 5468652073756e206e65766572207365 (16 bytes, byte-exact)
+
+================================================================================
+SECTION 3 - FORGERY-REJECTION BATTERY================================================================================
+[ OK] control  accepted control: untouched §2.8.2 message
+[ OK] forgery  rejected tag bit 0 flipped
+[ OK] forgery  rejected tag bit 71 flipped
+[ OK] forgery  rejected tag bit 127 flipped
+[ OK] forgery  rejected tag zeroed
+[ OK] forgery  rejected ciphertext byte 0 flipped
+[ OK] forgery  rejected ciphertext last bit flipped
+[ OK] forgery  rejected ciphertext truncated (1 byte short)
+[ OK] forgery  rejected ciphertext swapped (tag from another message)
+[ OK] forgery  rejected AAD byte 0 flipped
+[ OK] forgery  rejected IV byte 0 flipped (new keystream, same tag)
+[ OK] forgery  rejected constant byte 0 flipped
+[ OK] forgery  rejected key last bit flipped
+
+Forgery battery: 13 cases, 13 correct decisions
+
+================================================================================
+SECTION 4 - AVALANCHE / DIFFUSION (128-bit tag)================================================================================
+352 one-bit flips of key (256) / nonce (96):
+  mean 64.17 / min 48 / max 80 of 128 tag bits
+
+  key bit -> flipped tag bits (rows of 8):
+     68  72  61  73  70  71  68  62 
+     72  65  59  61  68  70  59  62 
+     57  80  52  64  76  68  57  65 
+     65  64  62  66  65  64  62  67 
+     70  67  54  59  68  67  72  53 
+     65  70  63  63  63  67  75  67 
+     69  80  59  53  69  70  64  70 
+     62  66  60  74  69  68  61  64 
+     52  69  67  73  59  68  64  63 
+     68  71  61  50  70  72  63  59 
+     57  67  70  72  69  75  58  72 
+     65  61  61  65  60  56  68  65 
+     61  71  70  68  62  57  63  61 
+     61  66  59  65  55  59  62  60 
+     68  68  65  48  64  72  58  52 
+     62  69  69  56  68  52  55  55 
+     67  61  66  61  64  71  66  73 
+     65  69  63  55  69  62  56  67 
+     59  57  55  70  60  68  58  62 
+     58  62  60  55  59  62  64  66 
+     77  61  62  61  59  65  60  67 
+     66  58  66  69  69  65  64  67 
+     67  66  60  67  70  64  63  62 
+     61  60  66  68  70  67  61  67 
+     60  71  60  65  62  55  57  59 
+     55  63  60  59  65  61  65  64 
+     62  54  68  68  61  59  66  57 
+     69  59  66  58  65  56  64  62 
+     66  63  59  56  68  61  63  66 
+     58  68  66  56  75  67  65  72 
+     64  65  59  65  61  57  69  70 
+     76  61  64  64  66  67  68  64 
+  nonce bit -> flipped tag bits (rows of 8):
+     62  67  60  63  56  63  58  58 
+     66  71  63  72  61  67  61  62 
+     66  65  66  68  68  72  64  57 
+     53  68  70  66  65  71  67  70 
+     67  60  62  63  74  73  57  66 
+     71  66  70  68  59  64  60  58 
+     69  61  64  68  63  51  69  51 
+     66  62  73  58  69  68  58  59 
+     69  63  64  67  66  58  61  52 
+     77  70  62  70  64  63  71  71 
+     80  63  66  61  75  65  64  63 
+     60  63  78  61  59  66  69  58 
+
+  contrast  : plaintext bit 0 -> ciphertext: 1 of 912 bits (linearity = exactly 1)
+              plaintext bit 0 -> tag        : 72 of 128 bits (MAC avalanches)
+
+================================================================================Determinism: this report is a pure function of the embedded RFC 8439
+vectors. The attestation artifact (attestation.txt) proves it: the
+report and PDF dossier are generated twice, SHA-256 hashed, and the
+digests must match. (c) 2026 Adithya N Raj.
+================================================================================

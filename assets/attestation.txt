@@ -1,0 +1,13 @@
+================================================================================
+TWOTIME DETERMINISM ATTESTATION
+crate   : twotime 1.0.0
+policy  : std-only, zero dependencies; no wall clock, no env input
+method  : battery report + PDF dossier generated twice in-process;
+          SHA-256 digests compared; artifacts are pure functions
+          of the embedded RFC 8439 KAT vectors (no RNG anywhere)
+run 1   : report.txt sha256 = 84ca6ba59e8672785c5d964e6e823789b4298989f04abaed159eca02c317f69a
+run 2   : report.txt sha256 = 84ca6ba59e8672785c5d964e6e823789b4298989f04abaed159eca02c317f69a
+run 1   : dossier.pdf sha256 = e35696b94aa22b9ccc4c8cef5e8b74c571ad3ebe6b0c79db3f4a60aa8d81c13e
+run 2   : dossier.pdf sha256 = e35696b94aa22b9ccc4c8cef5e8b74c571ad3ebe6b0c79db3f4a60aa8d81c13e
+verdict : BYTE-IDENTICAL (dual-run diff empty)
+================================================================================
