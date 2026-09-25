@@ -1,0 +1,16 @@
+[package]
+name = "twotime"
+version = "1.0.0"
+edition = "2021"
+description = "ChaCha20-Poly1305 AEAD (RFC 8439) from scratch in std-only Rust, with the two-time-pad attack reproduced byte-exact"
+license = "MIT"
+
+[lib]
+name = "twotime"
+path = "src/lib.rs"
+
+[[bin]]
+name = "twotime"
+path = "src/main.rs"
+
+[dependencies]
