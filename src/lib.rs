@@ -10,6 +10,7 @@ pub mod forgery;
 pub mod kats;
 pub mod pdf;
 pub mod poly;
+pub mod svg;
 pub mod twotime;
 
 /// Crate version (appears in artifacts; no timestamps anywhere).
