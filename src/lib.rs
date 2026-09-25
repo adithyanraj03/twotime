@@ -8,6 +8,7 @@ pub mod crypto;
 pub mod forgery;
 pub mod kats;
 pub mod poly;
+pub mod twotime;
 
 /// Crate version (appears in artifacts; no timestamps anywhere).
 pub const VERSION: &str = "1.0.0";
