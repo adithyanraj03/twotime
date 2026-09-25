@@ -8,6 +8,7 @@ pub mod chacha;
 pub mod crypto;
 pub mod forgery;
 pub mod kats;
+pub mod pdf;
 pub mod poly;
 pub mod twotime;
 
