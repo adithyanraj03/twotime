@@ -3,6 +3,7 @@
 
 pub mod aead;
 pub mod avalanche;
+pub mod battery;
 pub mod chacha;
 pub mod crypto;
 pub mod forgery;
